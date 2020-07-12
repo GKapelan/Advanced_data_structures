@@ -8,7 +8,11 @@
 package roadgraph;
 
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -24,7 +28,9 @@ import util.GraphLoader;
  */
 public class MapGraph {
 	//TODO: Add your member variables here in WEEK 3
-	
+		
+	HashMap<GeographicPoint, MapNode> gPointMapNode;
+	HashSet<MapEdge> edges;
 	
 	/** 
 	 * Create a new empty MapGraph 
@@ -32,6 +38,9 @@ public class MapGraph {
 	public MapGraph()
 	{
 		// TODO: Implement in this constructor in WEEK 3
+		
+		this.gPointMapNode = new HashMap<GeographicPoint, MapNode>();
+		this.edges = new HashSet<MapEdge>();
 	}
 	
 	/**
@@ -41,7 +50,7 @@ public class MapGraph {
 	public int getNumVertices()
 	{
 		//TODO: Implement this method in WEEK 3
-		return 0;
+		return gPointMapNode.values().size();
 	}
 	
 	/**
@@ -51,7 +60,7 @@ public class MapGraph {
 	public Set<GeographicPoint> getVertices()
 	{
 		//TODO: Implement this method in WEEK 3
-		return null;
+		return gPointMapNode.keySet();
 	}
 	
 	/**
@@ -61,7 +70,7 @@ public class MapGraph {
 	public int getNumEdges()
 	{
 		//TODO: Implement this method in WEEK 3
-		return 0;
+		return edges.size();
 	}
 
 	
@@ -76,7 +85,19 @@ public class MapGraph {
 	public boolean addVertex(GeographicPoint location)
 	{
 		// TODO: Implement this method in WEEK 3
-		return false;
+		if (location == null) {
+			return false;
+		}
+		MapNode n = gPointMapNode.get(location);
+		if (n == null) {
+			n = new MapNode(location);
+			gPointMapNode.put(location, n);
+			return true;
+		}
+		else {
+			System.out.println("Warning: Node at location " + location + " already exists in the graph.");
+			return false;
+		}
 	}
 	
 	/**
@@ -95,7 +116,12 @@ public class MapGraph {
 			String roadType, double length) throws IllegalArgumentException {
 
 		//TODO: Implement this method in WEEK 3
+		MapNode n1 = gPointMapNode.get(from);
+		MapNode n2 = gPointMapNode.get(to);
 		
+		MapEdge edge = new MapEdge(n1, n2);
+		edges.add(edge);
+		n1.addEdge(edge);
 	}
 	
 
@@ -125,10 +151,66 @@ public class MapGraph {
 	{
 		// TODO: Implement this method in WEEK 3
 		
-		// Hook for visualization.  See writeup.
-		//nodeSearched.accept(next.getLocation());
-
-		return null;
+		if (start == null || goal == null)
+			throw new NullPointerException("Cannot finde route");
+		
+		MapNode startNode = gPointMapNode.get(start);
+		MapNode goalNode  = gPointMapNode.get(goal);
+		
+		if (startNode == null || goalNode == null) {
+			throw new NullPointerException("No path exists");
+		}
+		
+		HashMap<MapNode, MapNode> parentMap = new HashMap<MapNode, MapNode>();
+		boolean found = bfsSearch(startNode, goalNode, parentMap, nodeSearched);
+		
+		if (!found) {
+			System.out.printf("No path from %s to %s", start,goal);
+			return null;
+		}
+		
+		return constructPath(startNode, goalNode, parentMap);
+	}
+	
+	private boolean bfsSearch(MapNode start, MapNode goal, HashMap<MapNode, MapNode> parentMap, Consumer<GeographicPoint> nodeSearched) {
+		
+		HashSet<MapNode> visited = new HashSet<MapNode>();
+		Queue<MapNode> toExplore = new LinkedList<MapNode>();
+		toExplore.add(start);
+		boolean found = false;
+		
+		while (!toExplore.isEmpty()) {
+			MapNode curr = toExplore.remove();
+			
+			if (curr == goal) {
+				found = true;
+				break;
+			}
+			
+			Set<MapNode> neighbors = curr.getNeighbors();
+			for (MapNode next : neighbors) {
+				if (!visited.contains(next)) {
+					visited.add(next);
+					parentMap.put(next, curr);
+					toExplore.add(next);
+				}
+			}
+		}
+		return found;
+	}
+	
+	private List<GeographicPoint> constructPath(MapNode start, MapNode goal, HashMap<MapNode, MapNode> parentMap){
+		
+		LinkedList<GeographicPoint> path = new LinkedList<GeographicPoint>();
+		MapNode curr = goal;
+		
+		while (curr != start) {
+			path.addFirst(curr.getLocation());
+			curr = parentMap.get(curr);
+		}
+		
+		path.addFirst(start.getLocation());
+		return path;
 	}
 	
 
@@ -214,7 +296,7 @@ public class MapGraph {
 		 * the Week 3 End of Week Quiz, EVEN IF you score 100% on the 
 		 * programming assignment.
 		 */
-		/*
+		
 		MapGraph simpleTestMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/testdata/simpletest.map", simpleTestMap);
 		
@@ -243,11 +325,11 @@ public class MapGraph {
 		System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
 		testroute = testMap.dijkstra(testStart,testEnd);
 		testroute2 = testMap.aStarSearch(testStart,testEnd);
-		*/
+		
 		
 		
 		/* Use this code in Week 3 End of Week Quiz */
-		/*MapGraph theMap = new MapGraph();
+		MapGraph theMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
 		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
 		System.out.println("DONE.");
@@ -259,8 +341,18 @@ public class MapGraph {
 		List<GeographicPoint> route = theMap.dijkstra(start,end);
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
 
-		*/
-		
+		/*
+		 * Week 3 MyTest 
+		 */
+		System.out.println("Testing My MapGraph");
+		System.out.print("Making a new map...");
+		MapGraph myMap = new MapGraph();
+		System.out.print("DONE. \nLoading the map...");
+		GraphLoader.loadRoadMap("data/testdata/simpletest.map", myMap);
+		System.out.println("DONE.");
+		List<GeographicPoint> routeBFS = myMap.bfs(new GeographicPoint(1.0, 1.0), new GeographicPoint(8.0, -1.0));
+		System.out.println("Route BFS: " + routeBFS);
+		System.out.println("End of my MapGraph testing");		
 	}
 	
 }
