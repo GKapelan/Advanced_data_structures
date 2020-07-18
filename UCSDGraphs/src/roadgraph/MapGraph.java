@@ -297,9 +297,10 @@ public class MapGraph {
 			MapNode curr = toExplore.remove();
 			count++;
 			
+			System.out.printf("\nDIJKSTRA visiting %s", curr);
 			if (curr.equals(endNode)) {
 				found = true;
-				System.out.println("Nodes visited in Dijkstra search: " + count);
+				System.out.printf("\nNodes visited in Dijkstra search: %s", count);
 				break;
 			}
 			
@@ -399,14 +400,16 @@ public class MapGraph {
 		
 		int count = 0;
 		boolean found = false;
-		
+
 		while (!toExplore.isEmpty()) {
 			MapNode next = toExplore.remove();
             count++;
 
+    		//System.out.print("\nA* visiting" + next + "\nActual = " + next.getActualDistance() + ", Prev: " + next.getDistance());
+            System.out.printf("\nA* visiting %s \nActual = %s, Prev: %s", next, next.getActualDistance(), next.getDistance());
 			if (next.equals(goalNode)) {
 				found = true;
-				System.out.println("Nodes visited in aStar search: "+count);
+				System.out.printf("\nNodes visited in aStar search: %s", count);
 				break;
 			}
 			if(!visited.contains(next)) {
@@ -494,12 +497,12 @@ public class MapGraph {
 		GeographicPoint testStart = new GeographicPoint(1.0, 1.0);
 		GeographicPoint testEnd = new GeographicPoint(8.0, -1.0);
 		
-		System.out.println("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5");
+		System.out.print("Test 1 using simpletest: Dijkstra should be 9 and AStar should be 5");
 		List<GeographicPoint> testroute = simpleTestMap.dijkstra(testStart,testEnd);
 		List<GeographicPoint> testroute2 = simpleTestMap.aStarSearch(testStart,testEnd);
 		
-		System.out.println("Test 1 Dijkstra:    " + testroute);
-		System.out.println("Test 1 aStarSearch: " + testroute2);		
+		System.out.printf("\nTest 1 Dijkstra: %s", testroute);
+		System.out.printf("\nTest 1 aStarSearch: %s", testroute2);		
 		
 		MapGraph testMap = new MapGraph();
 		GraphLoader.loadRoadMap("data/maps/utc.map", testMap);
@@ -507,26 +510,26 @@ public class MapGraph {
 		// A very simple test using real data
 		testStart = new GeographicPoint(32.869423, -117.220917);
 		testEnd = new GeographicPoint(32.869255, -117.216927);
-		System.out.println("Test 2 using utc: Dijkstra should be 13 and AStar should be 5");
+		System.out.print("\n\nTest 2 using utc: Dijkstra should be 13 and AStar should be 5");
 		testroute = testMap.dijkstra(testStart,testEnd);
 		testroute2 = testMap.aStarSearch(testStart,testEnd);
 		
-		System.out.println("Test 2 Dijkstra:    " + testroute);
-		System.out.println("Test 2 aStarSearch: " + testroute2);		
+		System.out.printf("\nTest 2 Dijkstra: %s", testroute);
+		System.out.printf("\nTest 2 aStarSearch: %s", testroute2);			
 		
 		// A slightly more complex test using real data
 		testStart = new GeographicPoint(32.8674388, -117.2190213);
 		testEnd = new GeographicPoint(32.8697828, -117.2244506);
-		System.out.println("Test 3 using utc: Dijkstra should be 37 and AStar should be 10");
+		System.out.print("\n\nTest 3 using utc: Dijkstra should be 37 and AStar should be 10");
 		testroute = testMap.dijkstra(testStart,testEnd);
 		testroute2 = testMap.aStarSearch(testStart,testEnd);
 		
-		System.out.println("Test 3 Dijkstra:    " + testroute);
-		System.out.println("Test 3 aStarSearch: " + testroute2);		
+		System.out.printf("\nTest 3 Dijkstra: %s", testroute);
+		System.out.printf("\nTest 3 aStarSearch: %s", testroute2);			
 		
 		/* Use this code in Week 3 End of Week Quiz */
 		MapGraph theMap = new MapGraph();
-		System.out.print("DONE. \nLoading the map...");
+		System.out.print("DONE. \n\nLoading the map...");
 		GraphLoader.loadRoadMap("data/maps/utc.map", theMap);
 		System.out.println("DONE.");
 
@@ -536,13 +539,13 @@ public class MapGraph {
 		List<GeographicPoint> route = theMap.dijkstra(start,end);
 		List<GeographicPoint> route2 = theMap.aStarSearch(start,end);
 		
-		System.out.println("Test UTC.MAP Dijkstra:    " + route);
-		System.out.println("Test UTC.MAP aStarSearch: " + route2);	
+		System.out.printf("\nTest UTC.MAP Dijkstra: %s", route);
+		System.out.printf("\nTest UTC.MAP aStarSearch: %s", route2);	
 
 		/*
 		 * Week 3 MyTest 
 		 */
-		System.out.println("Testing My MapGraph");
+		System.out.println("\n\nTesting My MapGraph");
 		System.out.print("Making a new map...");
 		MapGraph myMap = new MapGraph();
 		System.out.print("DONE. \nLoading the map...");
